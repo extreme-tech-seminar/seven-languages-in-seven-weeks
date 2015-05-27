@@ -1,0 +1,62 @@
+#+TITLE: Seven Languages in Seven Weeks
+#+BEAMER_HEADER: \subtitle{Introduction}
+#+BEAMER_HEADER: \institute[INST]{Extreme Tech Seminar}
+#+AUTHOR: Correl Roush
+#+EMAIL: correl@gmail.com
+#+DATE: May 27, 2015
+#+OPTIONS: H:1 toc:nil ^:nil
+#+STARTUP: beamer indent
+#+COLUMNS: %45ITEM %10BEAMER_env(Env) %10BEAMER_act(Act) %4BEAMER_col(Col) %8BEAMER_opt(Opt)
+#+PROPERTY: BEAMER_col_ALL 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.0 :ETC
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [presentation,bigger]
+
+* The Book
+** The Book                                                          :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.7
+:END:
+https://pragprog.com/book/btlang/
+
+- Discount Code (35% off) :: ExtremeTech7
+** Cover                                                             :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.3
+:END:
+
+#+ATTR_LATEX: width=\textwidth
+[[file:btlang.jpg]]
+* Foreward                                                          :B_quote:
+:PROPERTIES:
+:BEAMER_env: quote
+:END:
+#+BEGIN_QUOTATION
+Ultimately, programming  is about understanding, and  understanding is
+about  ideas. So,  exposure  to new  ideas is  essential  to a  deeper
+understanding of what programming is all about.
+
+--- Joe Armstrong, creator of Erlang
+#+END_QUOTATION
+* Method to the Madness
+#+ATTR_BEAMER: :overlay <+->
+- What is the typing model?
+- What is the programming model?
+- How will you interact with it?
+- What are the decision constructs and core data structures?
+- What are the core features that make the language unique?
+* The Languages
+#+ATTR_BEAMER: :overlay <+->
+1. Ruby
+2. Io
+3. Prolog
+4. Scala
+5. Erlang
+6. Closure
+7. Haskell
+* A Final Charge                                                    :B_quote:
+:PROPERTIES:
+:BEAMER_env: quote
+:END:
+#+BEGIN_CENTER
+Have fun
+#+END_CENTER
