@@ -1,0 +1,109 @@
+#+TITLE: Seven Languages in Seven Weeks
+#+BEAMER_HEADER: \subtitle{Ruby}
+#+BEAMER_HEADER: \institute[INST]{Extreme Tech Seminar}
+#+AUTHOR: Correl Roush
+#+EMAIL: correl@gmail.com
+#+DATE: May 27, 2015
+#+OPTIONS: H:2 toc:nil
+#+STARTUP: beamer indent
+#+COLUMNS: %45ITEM %10BEAMER_env(Env) %10BEAMER_act(Act) %4BEAMER_col(Col) %8BEAMER_opt(Opt)
+#+PROPERTY: BEAMER_col_ALL 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.0 :ETC
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [presentation,bigger]
+
+* Seven Languages in Seven Weeks
+** The Book
+*** The Book                                                        :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.7
+:END:
+https://pragprog.com/book/btlang/
+
+- Discount Code (35% off) :: ExtremeTech7
+*** Cover                                                           :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.3
+:END:
+
+#+ATTR_LATEX: width=\textwidth
+[[file:btlang.jpg]]
+* Introduction
+** Foreward                                                        :B_quote:
+:PROPERTIES:
+:BEAMER_env: quote
+:END:
+#+BEGIN_QUOTE
+Ultimately, programming  is about understanding, and  understanding is
+about  ideas. So,  exposure  to new  ideas is  essential  to a  deeper
+understanding of what programming is all about.
+
+-- Joe Armstrong, creator of Erlang
+#+END_QUOTE
+** Method to the Madness
+- What is the typing model?
+- What is the programming model?
+- How will you interact with it?
+- What are the decision constructs and core data structures?
+- What are the core features that make the language unique?
+** The Languages
+- Ruby
+- Io
+- Prolog
+- Scala
+- Erlang
+- Closure
+- Haskell
+** A Final Charge                                                  :B_quote:
+:PROPERTIES:
+:BEAMER_env: quote
+:END:
+#+BEGIN_QUOTE
+Have fun.
+#+END_QUOTE
+* Ruby
+** Ruby
+*** Ruby                                                    :B_block:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:BEAMER_env: block
+:END:
+- Created :: ~1993
+- Author :: Yukihiro Matsumoto
+
+Interpreted, object-oriented, and dynamically typed.
+*** Mary Poppins                                                    :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+#+ATTR_LATEX: width=\textwidth
+[[file:mary_poppins_remake_by_gali_miau-d4nyzkc.jpg]]
+** Day 1: Finding a Nanny
+http://www.ruby-lang.org/en/downloads/
+
+- Object-Oriented
+- Simple Conditionals
+- Strong / Dynamic Typing
+- Duck Typing
+** Day 2: Floating Down from the Sky
+- Defining Functions
+- Arrays
+- Hashes
+- Code Blocks and Yield
+- Running Ruby from a File
+- Defining Classes
+- Writing a Mixin
+- Modules, Enumerable, and Sets
+** Day 3: Serious Change
+- Open Classes
+- =method_missing=
+- Modules
+** Wrapping Up: Core Strengths
+- Scripting
+- Web Development
+- Time to Market
+** Wrapping Up: Weaknesses
+- Performance
+- Concurrency and OOP
+- Type Safety
+** Wrapping Up: Final Thoughts
+Syntax and flexibility vs. performance.
