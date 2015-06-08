@@ -1,0 +1,250 @@
+#+TITLE: Seven Languages in Seven Weeks
+#+BEAMER_HEADER: \subtitle{Io}
+#+BEAMER_HEADER: \institute[INST]{Extreme Tech Seminar}
+#+AUTHOR: Correl Roush
+#+EMAIL: correl@gmail.com
+#+DATE: June 10, 2015
+#+OPTIONS: H:2 toc:nil ^:nil
+#+STARTUP: beamer indent
+#+COLUMNS: %45ITEM %10BEAMER_env(Env) %10BEAMER_act(Act) %4BEAMER_col(Col) %8BEAMER_opt(Opt)
+#+PROPERTY: BEAMER_col_ALL 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.0 :ETC
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [presentation]
+
+* Introduction
+** Introduction
+*** Io                                                              :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+- Created :: 2002
+- Author :: Steve Dekorte
+
+An embeddable prototype language with a simple syntax and strong
+concurrency model.
+*** Ferris Bueller                                                  :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+#+ATTR_LATEX: width=\textwidth
+[[file:bueller.jpg]]
+** Getting Io
+[[http://iolanguage.org/]]
+* Day 1
+** Day 1: Skipping School, Hanging Out
+- Prototypes
+- Sending messages
+- Objects, slots, and types
+- Methods
+- Collections
+- Singletons
+** Objects, Prototypes, and Inheritance
+#+begin_src io
+  Vehicle := Object clone
+  Vehicle description := "Something to take you far away"
+  Car := Vehicle clone
+  Car description // "Something to take you far away"
+  ferrari := Car clone
+#+end_src
+
+- Objects are just containers of slots. If the slot isn't there, Io
+  calls the parent.
+- =ferrari= has no =type= slot. By convention, types in Io begin with
+  uppercase letters.
+** Methods
+#+begin_src io
+  Car drive := method("Vroom" println)
+#+end_src
+
+- A method is an object.
+- Since a method is an object, we can assign it to a slot.
+- If a slot has a method, invoking the slot invokes the method.
+** Lists and Maps
+#+begin_src io
+  list(1, 2, 3, 4) sum // 10
+
+  elvis := Map clone
+  elvis atPut("home", "Graceland")
+  elvis at("home") // "Graceland"
+#+end_src
+
+- A list is an ordered collection of objects of any type.
+- A hash is a lot like an Io object in structure where the keys are
+  slots that are tied to values.
+** =true=, =false=, =nil=, and singletons
+#+begin_src io
+  4 < 5          // true
+  4 <= 3         // false
+  true and false // false
+  true or false  // true
+  true and 6     // true
+  true and 0     // true
+
+  true clone     // true
+  false clone    // false
+  nil clone      // nil
+#+end_src
+=true=, =false=, and =nil= are *singletons*.
+** Singletons
+#+begin_src io
+  Highlander := Object clone
+  Highlander clone := Highlander
+#+end_src
+
+We've simply redefined the =clone= method to return =Highlander=,
+rather than letting Io forward requests up the tree, eventually
+getting to =Object=.
+** Exercises
+#+BEGIN_CENTER
+EXERCISES
+#+END_CENTER
+* Day 2
+** Day 2: The Sausage King
+- Loops & Conditionals
+- Operators
+- Messages
+- Reflection
+** Loops
+*** Infinite loop
+#+begin_src io
+  loop("getting dizzy..." println)
+#+end_src
+*** While loop
+#+begin_src io
+  i := 1
+  while(i <= 11, i println; i = i + 1); "This one goes up to 11" println
+#+end_src
+*** For loop
+#+begin_src io
+  for(i, 1, 11, i println); "This one goes up to 11" println
+#+end_src
+** Conditionals
+The =if= control structure is implemented as a function with the form
+=if(condition, true code, false code)=. The function will execute
+=true code= if =condition= is =true=; otherwise, it will execute
+=false code=.
+** Operators
+|         0 | ~? @ @@~                              |
+|         1 | ~**~                                  |
+|         2 | ~% * /~                               |
+|         3 | ~+ -~                                 |
+|         4 | ~<< >>~                               |
+|         5 | ~< <= > >=~                           |
+|         6 | ~!= ==~                               |
+|         7 | ~&~                                   |
+|         8 | ~^~                                   |
+|         9 | ~\vert~                               |
+|        10 | ~&& and~                              |
+|        11 | ~or~                                  |
+|        12 | ~..~                                  |
+|        13 | ~%= &= *= += -= /= <<= >>= ^= \vert=~ |
+|        14 | ~return~                              |
+** Assign Operators
+| ~::=~ | ~newSlot~    |
+| ~:=~  | ~setSlot~    |
+| ~=~   | ~updateSlot~ |
+** Add an Operator
+#+begin_src io
+  OperatorTable addOperator("xor", 11)
+
+  true xor := method(bool, if(bool, false, true))
+  false xor := method(bool, if(bool, true, false))
+#+end_src
+** Messages
+A message has three components: the =sender=, the =target=, and the
+=arguments=.
+
+The =call= method gives you access to the meta information about any
+message.
+** Reflection
+#+begin_src io
+  Object ancestors := method(
+          prototype := self proto  
+          if(prototype != Object,
+          writeln("Slots of ", prototype type, "\n---------------")
+          prototype slotNames foreach(slotName, writeln(slotName))
+          writeln
+          prototype ancestors))
+
+
+  Animal := Object clone
+  Animal speak := method(
+              "ambiguous animal noise" println)
+
+  Duck := Animal clone
+  Duck speak := method(
+              "quack" println)
+
+  Duck walk := method(
+              "waddle" println)
+
+  disco := Duck clone
+  disco ancestors
+#+end_src
+** Exercises
+#+BEGIN_CENTER
+EXERCISES
+#+END_CENTER
+* Day 3
+** Day 3: The Parade and Other Strange Places
+- DSLs
+- Metaprogramming
+- Concurrency
+** Domain-Specific Languages
+#+begin_src io
+  OperatorTable addAssignOperator(":", "atPutNumber")
+  curlyBrackets := method(
+    r := Map clone
+    call message arguments foreach(arg,
+         r doMessage(arg)
+         )
+    r
+  )
+  Map atPutNumber := method(
+    self atPut(
+         call evalArgAt(0) asMutable removePrefix("\"") removeSuffix("\""),
+         call evalArgAt(1))
+  )
+  s := File with("phonebook.txt") openForReading contents
+  phoneNumbers := doString(s)
+  phoneNumbers keys   println
+  phoneNumbers values println
+#+end_src
+** Io's =method_missing=
+#+begin_src io
+  Builder := Object clone
+  Builder forward := method(
+    writeln("<", call message name, ">")
+    call message arguments foreach(
+          arg, 
+          content := self doMessage(arg); 
+          if(content type == "Sequence", writeln(content)))
+    writeln("</", call message name, ">"))
+  Builder  ul(
+          li("Io"), 
+          li("Lua"), 
+          li("JavaScript"))
+#+end_src
+** Concurrency
+- Coroutines
+- Actors
+- Futures
+** Exercises
+#+BEGIN_CENTER
+EXERCISES
+#+END_CENTER
+* Wrapping Up
+** Wrapping Up: Strengths
+- Footprint
+- Simplicity
+- Flexibility
+- Concurrency
+** Wrapping Up: Weaknesses
+- Syntax
+- Community
+- Performance
+** Final Thoughts
+#+BEGIN_QUOTE
+Like Lisp, Io has a strong overriding philosophy of simplicity and
+flexibility.
+#+END_QUOTE
