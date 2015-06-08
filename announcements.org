@@ -1,0 +1,35 @@
+#+TITLE: TV Announcements
+#+AUTHOR: Correl Roush
+#+EMAIL: correl@gmail.com
+#+OPTIONS: H:1 toc:nil ^:nil
+#+STARTUP: beamer indent
+#+COLUMNS: %45ITEM %10BEAMER_env(Env) %10BEAMER_act(Act) %4BEAMER_col(Col) %8BEAMER_opt(Opt)
+#+PROPERTY: BEAMER_col_ALL 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.0 :ETC
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [presentation,aspectratio=169]
+
+* Io
+#+LATEX: \fontspec{Antonio-Bold}\color{trek@lightyellow}
+#+LATEX: \Huge
+#+BEGIN_CENTER
+THE EXTREME TECH SEMINAR
+#+END_CENTER
+#+LATEX: \Large\color{trek@lightorange}
+#+BEGIN_CENTER
+Franklin Training Room, Wed June 10 @ 6:00PM
+#+END_CENTER
+#+LATEX: \normalsize\color{trek@lightblue}
+#+BEGIN_CENTER
+Come join us as we study Bruce Tate's book, "Seven Languages in Seven
+Weeks: A Pragmatic Guide to Learning Programming Languages."
+#+END_CENTER
+#+LATEX: \small\color{trek@darkorange}
+#+BEGIN_CENTER
+THIS WEEK: THE PROTOTYPE LANGUAGE "Io"
+#+END_CENTER
+#+LATEX: \small\color{trek@midblue}
+#+BEGIN_CENTER
+pragprog.com/book/btlang
+
+COUPON CODE: ExtremeTech7
+#+END_CENTER
