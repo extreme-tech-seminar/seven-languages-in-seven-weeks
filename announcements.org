@@ -1,4 +1,4 @@
-#+TITLE: TV Announcements
+#+TITLE: Extreme Tech Seminar
 #+AUTHOR: Correl Roush
 #+EMAIL: correl@gmail.com
 #+OPTIONS: H:1 toc:nil ^:nil
@@ -8,28 +8,73 @@
 #+LaTeX_CLASS: beamer
 #+LaTeX_CLASS_OPTIONS: [presentation,aspectratio=169]
 
-* Io
-#+LATEX: \fontspec{Antonio-Bold}\color{trek@lightyellow}
-#+LATEX: \Huge
-#+BEGIN_CENTER
-THE EXTREME TECH SEMINAR
-#+END_CENTER
-#+LATEX: \Large\color{trek@lightorange}
-#+BEGIN_CENTER
-Franklin Training Room, Wed June 10 @ 6:00PM
-#+END_CENTER
-#+LATEX: \normalsize\color{trek@lightblue}
-#+BEGIN_CENTER
-Come join us as we study Bruce Tate's book, "Seven Languages in Seven
-Weeks: A Pragmatic Guide to Learning Programming Languages."
-#+END_CENTER
-#+LATEX: \small\color{trek@darkorange}
-#+BEGIN_CENTER
-THIS WEEK: THE PROTOTYPE LANGUAGE "Io"
-#+END_CENTER
-#+LATEX: \small\color{trek@midblue}
-#+BEGIN_CENTER
-pragprog.com/book/btlang
+#+begin_src emacs-lisp :exports results :results silent
+  (defun xts-announcement (location language)
+    (print (string-join `("#+LATEX: \\fontspec{Antonio-Bold}\\color{trek@lightyellow}"
+                          "#+LATEX: \\Huge"
+                          "#+BEGIN_CENTER"
+                          "THE EXTREME TECH SEMINAR"
+                          "#+END_CENTER"
+                          "#+LATEX: \\Large\\color{trek@lightorange}"
+                          "#+BEGIN_CENTER"
+                          ,(format-time-string "%a, %B %e @%l:%M%p"
+                                               (org-get-scheduled-time (point)))
+                          "#+END_CENTER"
+                          "#+LATEX: \\normalsize\\color{trek@lightblue}"
+                          "#+BEGIN_CENTER"
+                          "Come join us as we study Bruce Tate's book, \"Seven Languages in Seven Weeks: A Pragmatic Guide to Learning Programming Languages\"."
+                          "#+END_CENTER"
+                          "#+LATEX: \\small\\color{trek@darkorange}"
+                          "#+BEGIN_CENTER"
+                          ,(concat "THIS WEEK: " (s-upcase language))
+                          "#+END_CENTER"
+                          "#+LATEX: \\small\\color{trek@midblue}"
+                          "#+BEGIN_CENTER"
+                          "pragprog.com/book/btlang\\\\"
+                          "COUPON CODE: ExtremeTech7"
+                          "#+END_CENTER")
+                        "\n")))
+#+end_src
 
-COUPON CODE: ExtremeTech7
-#+END_CENTER
+* Ruby
+SCHEDULED: <2015-05-27 Wed 18:00-20:00>
+#+begin_src emacs-lisp :exports results :results raw
+  (xts-announcement "Franklin Training Room"
+                    "The object-oriented langauge, \"Ruby\"")
+#+end_src
+* Io
+SCHEDULED: <2015-06-10 Wed 18:00-20:00>
+#+begin_src emacs-lisp :exports results :results raw
+  (xts-announcement "Franklin Training Room"
+                    "The prototype language, \"Io\"")
+#+end_src
+* Prolog
+SCHEDULED: <2015-06-24 Wed 18:00-20:00>
+#+begin_src emacs-lisp :exports results :results raw
+  (xts-announcement "Franklin Training Room"
+                    "The logic programming language, \"Prolog\"")
+#+end_src
+* Scala
+SCHEDULED: <2015-07-08 Wed 18:00-20:00>
+#+begin_src emacs-lisp :exports results :results raw
+  (xts-announcement "Franklin Training Room"
+                    "The functional/object-oriented hybrid JVM language, \"Scala\"")
+#+end_src
+* Erlang
+SCHEDULED: <2015-07-22 Wed 18:00-20:00>
+#+begin_src emacs-lisp :exports results :results raw
+  (xts-announcement "Franklin Training Room"
+                    "The concurrent, functional language, \"Erlang\"")
+#+end_src
+* Closure
+SCHEDULED: <2015-08-05 Wed 18:00-20:00>
+#+begin_src emacs-lisp :exports results :results raw
+  (xts-announcement "Franklin Training Room"
+                    "The JVM lisp, \"Closure\"")
+#+end_src
+* Haskell
+SCHEDULED: <2015-08-19 Wed 18:00-20:00>
+#+begin_src emacs-lisp :exports results :results raw
+  (xts-announcement "Franklin Training Room"
+                    "The pure functional language \"Haskell\"")
+#+end_src
