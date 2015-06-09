@@ -26,7 +26,7 @@
                           "#+END_CENTER"
                           "#+LATEX: \\small\\color{trek@darkorange}"
                           "#+BEGIN_CENTER"
-                          ,(concat "THIS WEEK: " (s-upcase language))
+                          ,(concat "THIS WEEK: " language)
                           "#+END_CENTER"
                           "#+LATEX: \\small\\color{trek@midblue}"
                           "#+BEGIN_CENTER"
