@@ -1,0 +1,251 @@
+#+TITLE: Seven Languages in Seven Weeks
+#+BEAMER_HEADER: \subtitle{Prolog}
+#+BEAMER_HEADER: \institute[INST]{Extreme Tech Seminar}
+#+AUTHOR: Correl Roush
+#+EMAIL: correl@gmail.com
+#+DATE: June 24, 2015
+#+OPTIONS: H:2 toc:nil ^:nil
+#+STARTUP: beamer indent
+#+COLUMNS: %45ITEM %10BEAMER_env(Env) %10BEAMER_act(Act) %4BEAMER_col(Col) %8BEAMER_opt(Opt)
+#+PROPERTY: BEAMER_col_ALL 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.0 :ETC
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [presentation,aspectratio=169]
+
+* Introduction
+** Introduction
+*** Prolog                                                            :BMCOL:
+:PROPERTIES: 
+:BEAMER_col: 0.6
+:END:      
+- Created :: 1972
+- Author :: Alain Colmerauer and Phillipe Roussel
+            
+A declarative logic programming language.
+*** Rain Man                                                          :BMCOL:
+:PROPERTIES: 
+:BEAMER_col: 0.4
+:END:      
+#+ATTR_LATEX: :width \textwidth
+[[file:rainman.jpg]]
+** Getting Prolog
+*** GNU Prolog
+http://www.gprolog.org/
+*** SWI Prolog
+http://www.swi-prolog.org/
+* Day 1
+** Day 1: An Excellent Driver
+- Atoms & Variables
+- Facts & Rules
+- Unification
+** Atoms & Variables
+*** Atoms
+- Begin with a lowercase letter.
+*** Variables
+- Begin with an uppercase letter.
+** Basic Facts & Queries
+*** Rules & Facts                                                   :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+**** Facts
+:PROPERTIES:
+:END:
+#+begin_src prolog
+  likes(wallace, cheese).
+  likes(grommit, cheese).
+  likes(wendolene, sheep).
+#+end_src
+**** Rules
+:PROPERTIES:
+:END:
+#+begin_src prolog
+  friend(X, Y) :- \+(X = Y),
+                  likes(X, Z),
+                  likes(Y, Z).
+#+end_src
+*** Queries                                               :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:BEAMER_env: example
+:END:
+#+begin_src prolog
+  likes(wallace, sheep).
+  %% false
+#+end_src
+
+#+begin_src prolog
+  likes(grommit, cheese).
+  %% true
+#+end_src
+
+#+begin_src prolog
+  friend(grommit, wallace).
+  %% true
+#+end_src
+
+#+begin_src prolog
+  friend(wallace, grommit).
+  %% true
+#+end_src
+
+#+begin_src prolog
+  friend(wendolene, grommit).
+  %% false
+#+end_src
+
+#+RESULTS:
+
+** Filling in the Blanks
+*** Food Facts                                                      :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+**** Facts
+#+begin_src prolog
+  food_type(velveeta, cheese).
+  food_type(ritz, cracker).
+  food_type(spam, meat).
+  food_type(sausage, meat).
+  food_type(jolt, soda).
+  food_type(twinkie, dessert).
+
+  flavor(sweet, desert).
+  flavor(savory, meat).
+  flavor(savory, cheese).
+  flavor(sweet, soda).
+#+end_src
+**** Rules
+#+begin_src prolog
+    food_flavor(X, Y) :- food_type(X, Z),
+                         flavor(Y, Z).
+#+end_src
+*** Queries                                               :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_env: example
+:BEAMER_col: 0.5
+:END:
+#+begin_src prolog
+  food_type(What, meat).
+  %% What = spam ;
+  %% What = sausage.
+#+end_src
+
+#+begin_src prolog
+  food_flavor(sausage, sweet).
+  %% false.
+#+end_src
+
+#+begin_src prolog
+  flavor(sweet, What).
+  %% What = dessert ;
+  %% What = soda.
+#+end_src
+
+#+begin_src prolog
+  food_flavor(What, savory).
+  %% What = velveeta ;
+  %% What = spam ;
+  %% What = sausage.
+#+end_src
+** Map Coloring: Problem
+*** Map                                                             :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.3
+:END:
+#+ATTR_LATEX: \textwidth
+[[file:prolog-map.png]]
+*** Problem                                                         :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.7
+:END:
+- We want to color a map of the southeastern United States.
+- We do not want two states of the same color to touch.
+- We will use three colors: red, blue, and green.
+** Map Coloring: Solution
+*** Map Facts                                                         :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+**** Facts
+#+begin_src prolog
+  different(red, green). different(red, blue).
+  different(green, red). different(green, blue).
+  different(blue, red). different(blue, green).
+
+  coloring(Alabama, Mississippi,
+           Georgia, Tennessee, Florida) :-
+    different(Mississippi, Tennessee),
+    different(Mississippi, Alabama),
+    different(Alabama, Tennessee),
+    different(Alabama, Mississippi),
+    different(Alabama, Georgia),
+    different(Alabama, Florida),
+    different(Georgia, Florida),
+    different(Georgia, Tennessee).
+#+end_src
+*** Query                                                 :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_env: example
+:BEAMER_col: 0.5
+:END:
+#+begin_src prolog
+  coloring(Alabama, Mississippi,
+           Georgia, Tennessee, Florida).
+  %% Alabama = blue,
+  %% Florida = green,
+  %% Georgia = red ,
+  %% Mississippi = red,
+  %% Tennessee = green ;
+#+end_src
+** Unification, Part 1
+*** Facts & Rules                                                   :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+**** Unification
+Unification across two structures tries to make both structures
+identical.
+**** Facts
+#+begin_src prolog
+  cat(lion).
+  cat(tiger).
+#+end_src
+**** Rules
+#+begin_src prolog
+  dorothy(X, Y, Z) :- X = lion,
+                      Y = tiger,
+                      Z = bear.
+  twin_cats(X, Y) :- cat(X), cat(Y).
+#+end_src
+*** Unification                                           :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:BEAMER_env: example
+:END:
+#+begin_src prolog
+  dorothy(lion, tiger, bear).
+  %% true.
+
+  dorothy(One, Two, Three).
+  %% One = lion,
+  %% Two = tiger,
+  %% Three = bear.
+
+  twin_cats(One, Two).
+  %% One = lion,
+  %% Two = lion ;
+  %% One = lion,
+  %% Two = tiger ;
+  %% One = tiger,
+  %% Two = lion ;
+  %% One = tiger,
+  %% Two = tiger.
+#+end_src
+** Interview
+#+BEGIN_CENTER
+An interview with Brian Tarbox, Dolphin Researcher
+#+END_CENTER
+** Exercises
+#+BEGIN_CENTER
+EXERCISES
+#+END_CENTER
