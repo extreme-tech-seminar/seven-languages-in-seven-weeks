@@ -1,0 +1,599 @@
+#+TITLE: Seven Languages in Seven Weeks
+#+BEAMER_HEADER: \subtitle{Prolog}
+#+BEAMER_HEADER: \institute[INST]{Extreme Tech Seminar}
+#+AUTHOR: Correl Roush
+#+EMAIL: correl@gmail.com
+#+DATE: June 24, 2015
+#+OPTIONS: H:2 toc:nil ^:nil
+#+STARTUP: beamer indent
+#+COLUMNS: %45ITEM %10BEAMER_env(Env) %10BEAMER_act(Act) %4BEAMER_col(Col) %8BEAMER_opt(Opt)
+#+PROPERTY: BEAMER_col_ALL 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.0 :ETC
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [presentation,aspectratio=169]
+
+* Introduction
+** Introduction
+*** Prolog                                                            :BMCOL:
+:PROPERTIES: 
+:BEAMER_col: 0.6
+:END:      
+- Created :: 1972
+- Author :: Alain Colmerauer and Phillipe Roussel
+            
+A declarative logic programming language.
+*** Rain Man                                                          :BMCOL:
+:PROPERTIES: 
+:BEAMER_col: 0.4
+:END:      
+#+ATTR_LATEX: :width \textwidth
+[[file:rainman.jpg]]
+** Getting Prolog
+*** GNU Prolog
+http://www.gprolog.org/
+*** SWI Prolog
+http://www.swi-prolog.org/
+* Day 1
+** Day 1: An Excellent Driver
+- Atoms & Variables
+- Facts & Rules
+- Unification
+** Atoms & Variables
+*** Atoms
+- Begin with a lowercase letter.
+*** Variables
+- Begin with an uppercase letter.
+** Basic Facts & Queries
+*** Rules & Facts                                                   :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+**** Facts
+:PROPERTIES:
+:END:
+#+begin_src prolog
+  likes(wallace, cheese).
+  likes(grommit, cheese).
+  likes(wendolene, sheep).
+#+end_src
+**** Rules
+:PROPERTIES:
+:END:
+#+begin_src prolog
+  friend(X, Y) :- \+(X = Y),
+                  likes(X, Z),
+                  likes(Y, Z).
+#+end_src
+*** Queries                                               :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:BEAMER_env: example
+:END:
+#+begin_src prolog
+  likes(wallace, sheep).
+  %% false
+#+end_src
+
+#+begin_src prolog
+  likes(grommit, cheese).
+  %% true
+#+end_src
+
+#+begin_src prolog
+  friend(grommit, wallace).
+  %% true
+#+end_src
+
+#+begin_src prolog
+  friend(wallace, grommit).
+  %% true
+#+end_src
+
+#+begin_src prolog
+  friend(wendolene, grommit).
+  %% false
+#+end_src
+
+#+RESULTS:
+
+** Filling in the Blanks
+*** Food Facts                                                      :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+**** Facts
+#+begin_src prolog
+  food_type(velveeta, cheese).
+  food_type(ritz, cracker).
+  food_type(spam, meat).
+  food_type(sausage, meat).
+  food_type(jolt, soda).
+  food_type(twinkie, dessert).
+
+  flavor(sweet, desert).
+  flavor(savory, meat).
+  flavor(savory, cheese).
+  flavor(sweet, soda).
+#+end_src
+**** Rules
+#+begin_src prolog
+    food_flavor(X, Y) :- food_type(X, Z),
+                         flavor(Y, Z).
+#+end_src
+*** Queries                                               :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_env: example
+:BEAMER_col: 0.5
+:END:
+#+begin_src prolog
+  food_type(What, meat).
+  %% What = spam ;
+  %% What = sausage.
+#+end_src
+
+#+begin_src prolog
+  food_flavor(sausage, sweet).
+  %% false.
+#+end_src
+
+#+begin_src prolog
+  flavor(sweet, What).
+  %% What = dessert ;
+  %% What = soda.
+#+end_src
+
+#+begin_src prolog
+  food_flavor(What, savory).
+  %% What = velveeta ;
+  %% What = spam ;
+  %% What = sausage.
+#+end_src
+** Map Coloring: Problem
+*** Map                                                             :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.3
+:END:
+#+ATTR_LATEX: \textwidth
+[[file:prolog-map.png]]
+*** Problem                                                         :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.7
+:END:
+- We want to color a map of the southeastern United States.
+- We do not want two states of the same color to touch.
+- We will use three colors: red, blue, and green.
+** Map Coloring: Solution
+*** Map Facts                                                         :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+**** Facts
+#+begin_src prolog
+  different(red, green). different(red, blue).
+  different(green, red). different(green, blue).
+  different(blue, red). different(blue, green).
+
+  coloring(Alabama, Mississippi,
+           Georgia, Tennessee, Florida) :-
+    different(Mississippi, Tennessee),
+    different(Mississippi, Alabama),
+    different(Alabama, Tennessee),
+    different(Alabama, Mississippi),
+    different(Alabama, Georgia),
+    different(Alabama, Florida),
+    different(Georgia, Florida),
+    different(Georgia, Tennessee).
+#+end_src
+*** Query                                                 :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_env: example
+:BEAMER_col: 0.5
+:END:
+#+begin_src prolog
+  coloring(Alabama, Mississippi,
+           Georgia, Tennessee, Florida).
+  %% Alabama = blue,
+  %% Florida = green,
+  %% Georgia = red ,
+  %% Mississippi = red,
+  %% Tennessee = green ;
+#+end_src
+** Unification, Part 1
+*** Facts & Rules                                                   :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+**** Unification
+Unification across two structures tries to make both structures
+identical.
+**** Facts
+#+begin_src prolog
+  cat(lion).
+  cat(tiger).
+#+end_src
+**** Rules
+#+begin_src prolog
+  dorothy(X, Y, Z) :- X = lion,
+                      Y = tiger,
+                      Z = bear.
+  twin_cats(X, Y) :- cat(X), cat(Y).
+#+end_src
+*** Unification                                           :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:BEAMER_env: example
+:END:
+#+begin_src prolog
+  dorothy(lion, tiger, bear).
+  %% true.
+
+  dorothy(One, Two, Three).
+  %% One = lion,
+  %% Two = tiger,
+  %% Three = bear.
+
+  twin_cats(One, Two).
+  %% One = lion,
+  %% Two = lion ;
+  %% One = lion,
+  %% Two = tiger ;
+  %% One = tiger,
+  %% Two = lion ;
+  %% One = tiger,
+  %% Two = tiger.
+#+end_src
+** Interview
+#+BEGIN_CENTER
+An interview with Brian Tarbox, Dolphin Researcher
+#+END_CENTER
+** Exercises
+#+BEGIN_CENTER
+EXERCISES
+#+END_CENTER
+* Day 2
+** Day 2: Fifteen Minutes to Wapner
+- Recursion
+- Lists and Tuples
+- Unification
+- Lists and Math
+- Using rules in Both Directions
+** Recursion
+The following rules define the paternal family tree of the Waltons.
+They express a father relationship and from that infers the ancestor
+relationship. Since an ancestor can mean a father, grandfather, or
+great grandfather, we will need to nest the rules or iterate.
+
+#+begin_src prolog
+  father(zeb,         john_boy_sr).
+  father(john_boy_sr, john_boy_jr).
+
+  ancestor(X, Y) :-
+      father(X, Y).
+  ancestor(X, Y) :-
+      father(X, Z), ancestor(Z, Y).
+#+end_src
+
+In the above example, =ancestor(Z, Y)= is a *recursive subgoal*.
+** Lists and Tuples
+- Lists are containers of variable length.
+- Tuples are containers with a fixed length.
+** Unification, Part 2: Tuples
+Tuples unify if they have the same number of elements, and each
+element unifies.
+
+#+begin_src prolog
+  (1, 2, 3) = (1, 2, 3).    %% true
+  (1, 2, 3) = (1, 2, 3, 4). %% false
+  (1, 2, 3) = (3, 2, 1).    %% false
+#+end_src
+
+** Unification, Part 2: Lists
+Lists behave similarly, but can be deconstructed with the pattern
+=[Head|Tail]=.
+
+#+begin_src prolog
+  [1, 2, 3] = [1, 2, 3].             %% true
+  [2, 2, 3] = [X, X, Z].             %% X = 2, Z = 3
+
+  [a, b, c] = [Head|Tail].           %% Head = a, Tail = [b, c]
+  [] = [Head|Tail].                  %% false
+  [a] = [Head|Tail].                 %% Head = a, Tail = []
+
+  [a, b, c] = [a|[Head|Tail]].       %% Head = b, Tail = [c]
+
+  [a, b, c, d, e] = [_, _|[Head|_]]. %% Head = c
+#+end_src
+
+** Lists and Math
+
+*** Count
+#+begin_src prolog
+  count(0, []).
+  count(Count, [Head|Tail]) :- count(TailCount, Tail), Count is TailCount + 1.
+#+end_src
+
+*** Sum
+#+begin_src prolog
+  sum(0, []).
+  sum(Total, [Head|Tail]) :- sum(Sum, Tail), Total is Head + Sum.
+#+end_src
+
+*** Average
+#+begin_src prolog
+  average(Average, List) :- sum(Sum, List), count(Count, List), Average is Sum/Count.
+#+end_src
+
+** Using Rules in Both Directions
+The rule =append(List1, List2, List3)= is true if =List3= is =List1= +
+=List2=.
+
+*** Left                                                            :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+**** ... as a lie detector
+#+begin_src prolog
+  append([oil], [water],
+         [oil, water]). %% true
+  append([oil], [water],
+         [oil, slick]). %% false
+#+end_src
+
+**** ... as a list builder
+#+begin_src prolog
+  append([tiny], [bubbles],
+         What).
+  %% What = [tiny, bubbles]
+#+end_src
+
+*** Right                                                           :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+**** ... for list subtraction
+#+begin_src prolog
+  append([dessert_topping], Who,
+         [dessert_topping, floor_wax]).
+  %% Who = [floor_wax]
+#+end_src
+
+**** ... for computing possible splits
+#+begin_src prolog
+  append(One, Two,
+         [apples, oranges, bananas]).
+
+  %% One = [], Two = [apples, oranges, bananas]
+  %% One = [apples], Two = [oranges, bananas]
+  %% One = [apples, oranges], Two = [bananas]
+  %% One = [apples, oranges, bananas], Two = []
+#+end_src
+
+** Implementing append/3
+Steps:
+
+1. Write a rule called =concatenate(List1, List2, List3)= that can
+   concatenate an empty list to =List1=.
+2. Add a rule that concatenates one item from =List1= onto =List2=.
+3. Add a rule that concatenates two and three items from =List1= onto
+   =List2=.
+4. See what we can generalize.
+
+** concatenate/3: Step 1
+=concatentate/3= is =true= if the first parameter is an empty list and
+the next two parameters are the same.
+
+#+begin_src prolog
+  concatenate([], List, List).
+#+end_src
+
+*** Test                                                        :B_example:
+:PROPERTIES:
+:BEAMER_env: example
+:END:
+#+begin_src prolog
+  concatenate([], [harry], What).
+  %% What = [harry]
+#+end_src
+
+** concatenate/3: Step 2
+Add a rule that concatenates the first element of =List1= tot he front
+of =List2=:
+
+#+begin_src prolog
+  concatenate([Head|[]], List, [Head|List]).
+#+end_src
+
+*** Test                                                        :B_example:
+:PROPERTIES:
+:BEAMER_env: example
+:END:
+#+begin_src prolog
+  concatenate([malfoy], [potter], What).
+  %% What = [malfoy, potter]
+#+end_src
+
+** concatenate/3: Step 3
+Define another couple of rules to concatenate lists of lengths 2 and
+3:
+
+#+begin_src prolog
+  concatenate([Head1|[Head2|[]]], List, [Head1, Head2|List]).
+  concatenate([Head1|[Head2|[Head3|[]]]], List, [Head1, Head2, Head3|List])
+#+end_src
+
+*** Test                                                        :B_example:
+:PROPERTIES:
+:BEAMER_env: example
+:END:
+#+begin_src prolog
+  concatenate([malfoy, granger], [potter], What).
+  %% What = [malfoy, granger, potter]
+#+end_src
+
+** concatenate/3: Step 4
+Generalize for lists of arbitrary length using nested rules:
+
+#+begin_src prolog
+  concatenate([], List, List).
+  concatenate([Head|Tail1], List, [Head|Tail2]) :-
+      concatenate(Tail1, List, Tail2).
+#+end_src
+
+** Exercises
+#+BEGIN_CENTER
+EXERCISES
+#+END_CENTER
+
+* Day 3
+
+** Day 3: Blowing Up Vegas
+- Sudoku
+- Eight Queens
+** Solving Sudoku: The Problem
+- For a solved puzzle, the numbers in the puzzle and solution should
+  be the same.
+- A Sudoku board is a grid of sixteen cells, with values from 1-4.
+- The board has four rows, four columns, and four squares.
+- A puzzle is valid if the elements in each row, column, and square
+  has no repeated elements.
+
+*** Example                                                     :B_example:
+:PROPERTIES:
+:BEAMER_env: example
+:END:
+#+begin_src prolog
+  sudoku([_, _, 2, 3,
+          _, _, _, _,
+          _, _, _, _,
+          3, 4, _, _],
+         Solution).
+#+end_src
+** Solving Sudoku: The Solution
+
+*** Left                                                            :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+#+begin_src prolog
+  valid([]).
+  valid([Head|Tail]) :- 
+      fd_all_different(Head), 
+      valid(Tail).
+
+  sudoku(Puzzle, Solution) :-
+          Solution = Puzzle,
+          Puzzle = [S11, S12, S13, S14, 
+                    S21, S22, S23, S24, 
+                    S31, S32, S33, S34, 
+                    S41, S42, S43, S44], 
+                    
+          fd_domain(Solution, 1, 4), 
+          
+          Row1 = [S11, S12, S13, S14],
+          Row2 = [S21, S22, S23, S24],
+          Row3 = [S31, S32, S33, S34],
+          Row4 = [S41, S42, S43, S44],
+#+end_src
+
+*** Right                                                           :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+#+begin_src prolog
+          Col1 = [S11, S21, S31, S41],
+          Col2 = [S12, S22, S32, S42],
+          Col3 = [S13, S23, S33, S43],
+          Col4 = [S14, S24, S34, S44],
+          
+          Square1 = [S11, S12, S21, S22],
+          Square2 = [S13, S14, S23, S24],
+          Square3 = [S31, S32, S41, S42],
+          Square4 = [S33, S34, S43, S44], 
+          
+          valid([Row1, Row2, Row3, Row4, 
+                 Col1, Col2, Col3, Col4, 
+                 Square1, Square2, Square3, Square4]).
+#+end_src
+
+** Eight Queens: The Problem
+- A board has eight queens.
+- Each queen has a row from 1-8 and a column from 1-8.
+- No two queens can share the same row.
+- No two queens can share the same column.
+- No two queens can share the same diagonal (southwest to northeast).
+- No two queens can share the same diagonal (northwest to southeast).
+
+** Eight Queens: The Solution
+
+*** Left                                                            :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+#+begin_src prolog
+  valid_queen((Row, Col)) :-
+      member(Col, [1,2,3,4,5,6,7,8]).
+  valid_board([]).
+  valid_board([Head|Tail]) :-
+      valid_queen(Head), valid_board(Tail). 
+
+  cols([], []).
+  cols([(_, Col)|QueensTail], [Col|ColsTail]) :- 
+      cols(QueensTail, ColsTail).
+
+  diags1([], []).
+  diags1([(Row, Col)|QueensTail],
+         [Diagonal|DiagonalsTail]) :- 
+      Diagonal is Col - Row, 
+      diags1(QueensTail, DiagonalsTail).
+#+end_src
+
+*** Right                                                           :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+#+begin_src prolog
+  diags2([], []).
+  diags2([(Row, Col)|QueensTail],
+         [Diagonal|DiagonalsTail]) :- 
+      Diagonal is Col + Row, 
+      diags2(QueensTail, DiagonalsTail).
+
+  eight_queens(Board) :- 
+      Board = [(1, _), (2, _), (3, _), (4, _),
+               (5, _), (6, _), (7, _), (8, _)], 
+      valid_board(Board), 
+
+      cols(Board, Cols), 
+      diags1(Board, Diags1), 
+      diags2(Board, Diags2), 
+      fd_all_different(Cols), 
+      fd_all_different(Diags1),   
+      fd_all_different(Diags2).
+#+end_src
+
+** Exercises
+#+BEGIN_CENTER
+EXERCISES
+#+END_CENTER
+
+* Wrapping Up
+
+** Wrapping Up Prolog: Strengths
+- Natural-Language Processing
+- Games
+- Semantic Web
+- Artificial Intelligence
+- Scheduling
+
+** Wrapping Up Prolog: Weaknesses
+- Utility
+- Very Large Data Sets
+- Mixing the Imperative and Declarative Models
+
+** Final Thoughts
+#+BEGIN_QUOTE
+Prolog was a particularly poignant example of my evolving
+understanding. If you find a problem that's especially well suited for
+Prolog, take advantage. In such a setting, you can best use this
+rules-based language in combination with other general-purpose
+languages, just as you would use SQL within Ruby or Java.
+#+END_QUOTE
