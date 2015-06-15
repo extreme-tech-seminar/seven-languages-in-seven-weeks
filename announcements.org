@@ -9,6 +9,27 @@
 #+LaTeX_CLASS_OPTIONS: [presentation,aspectratio=169]
 
 #+begin_src emacs-lisp :exports results :results silent
+  (defun org-get-scheduled-end-time (pom &optional inherit)
+    (let ((parse-end-time
+           (lambda (time)
+             (let ((ts-regexp (concat org-ts-regexp1
+                                      "\\(-\\([0-9]\\{1,2\\}\\):\\([0-9]\\{2\\}\\)\\)")))
+               (when (string-match ts-regexp time)
+                 (org-parse-time-string (string-join (list (string-join (list (match-string 2 time)
+                                                                              (match-string 3 time)
+                                                                              (match-string 4 time))
+                                                                        "-")
+                                                           (match-string 5 time)
+                                                           (string-join (list (match-string 10 time)
+                                                                              (match-string 11 time))
+                                                                        ":"))
+                                                     " ")))))))
+      (let* ((time (org-entry-get pom "SCHEDULED"))
+           (end-time (org-habit-streaks--parse-scheduled-end-time time)))
+      (if end-time
+          (apply 'encode-time end-time)
+        (org-get-scheduled-time pom inherit)))))
+
   (defun xts-announcement (location language)
     (print (string-join `("#+LATEX: \\fontspec{Antonio-Bold}\\color{trek@lightyellow}"
                           "#+LATEX: \\Huge"
@@ -17,8 +38,9 @@
                           "#+END_CENTER"
                           "#+LATEX: \\Large\\color{trek@lightorange}"
                           "#+BEGIN_CENTER"
-                          ,(format-time-string "%a, %B %e @%l:%M%p"
-                                               (org-get-scheduled-time (point)))
+                          ,(concat (format-time-string "%a, %B %e @%l:%M%p"
+                                                       (org-get-scheduled-time (point)))
+                                   (format-time-string "-%l:%M%p" (org-get-scheduled-end-time (point))))
                           "#+END_CENTER"
                           "#+LATEX: \\normalsize\\color{trek@lightblue}"
                           "#+BEGIN_CENTER"
