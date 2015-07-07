@@ -1,0 +1,367 @@
+#+TITLE: Seven Languages in Seven Weeks
+#+BEAMER_HEADER: \subtitle{Scala}
+#+BEAMER_HEADER: \institute[INST]{Extreme Tech Seminar}
+#+AUTHOR: Correl Roush
+#+EMAIL: correl@gmail.com
+#+DATE: July 8, 2015
+#+OPTIONS: H:2 toc:nil ^:nil
+#+STARTUP: beamer indent
+#+COLUMNS: %45ITEM %10BEAMER_env(Env) %10BEAMER_act(Act) %4BEAMER_col(Col) %8BEAMER_opt(Opt)
+#+PROPERTY: BEAMER_col_ALL 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.0 :ETC
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [presentation,aspectratio=169]
+#+LaTeX_HEADER: \usemintedstyle{solarizeddark}
+
+* Introduction
+** Introduction
+*** Scala                                                             :BMCOL:
+:PROPERTIES: 
+:BEAMER_col: 0.7
+:END:      
+- Created :: 2003
+- Author :: Martin Odersky
+            
+A multi-paradigm language on the JVM, bringing support for functional
+programming and a strong static type system.
+
+*** Edward Scissorhands                                             :BMCOL:
+:PROPERTIES: 
+:BEAMER_col: 0.3
+:END:      
+#+ATTR_LATEX: :width \textwidth
+[[file:edward-scissorhands.jpg]]
+** Getting Scala
+[[http://scala-lang.org/]]
+* Day 1
+** Day 1: The Castle on the Hill
+- Types and Expressions
+- Loops
+- Ranges and Tuples
+- Classes
+** Types
+Everything is an object.
+
+#+begin_src scala
+  1 + 1
+  // 2
+
+  (1).+(1)
+  // 2
+
+  "abc".size
+  // 3
+#+end_src
+
+** Expressions and Conditions
+#+begin_src scala
+  5 < 6
+  // true
+
+  5 <= 2
+  // false
+
+  val a = 1
+  val b = 2
+
+  if (a > b) {
+    println("True")
+  } else {
+    println("False")
+  }
+  // False
+#+end_src
+
+** Loops
+#+begin_src scala
+def whileLoop {
+    var i = 1
+    while(i <= 3) {
+        println(i)
+        i += 1
+    }
+}
+def forLoop {
+    println( "for loop using Java-style iteration" )
+    for(i <- 0 until args.length) {
+        println(args(i))
+    }
+}
+def rubyStyleForLoop {
+    println( "for loop using Ruby-style iteration" )
+    args.foreach { arg => 
+        println(arg)
+    }
+}
+#+end_src
+
+** Ranges and Tuples
+#+begin_src scala
+val range = 0 until 10
+// Range(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+range.start
+// 0
+range.end
+// 10
+range.step
+// 1
+
+(0 to 10) by 5
+// Range(0, 5, 10)
+#+end_src
+
+#+begin_src scala
+val person = ("Elvis", "Presley")
+person._1 // "Elvis"
+person._2 // "Presley"
+
+val (x, y) = (1, 2)
+// x = 1, y = 2
+#+end_src
+
+** Classes
+#+begin_src scala
+  class Compass {
+    val directions = List("north", "east", "south", "west")
+    var bearing = 0
+    print("Initial bearing: ")
+    println(direction)
+
+    def direction() = directions(bearing)
+
+    def inform(turnDirection: String) {
+      println("Turning " + turnDirection + ". Now bearing " + direction)
+    }   
+    def turnRight() {
+      bearing = (bearing + 1) % directions.size
+      inform("right")
+    }
+    def turnLeft() {
+      bearing = (bearing + (directions.size - 1)) % directions.size
+      inform("left")
+    }
+  }
+#+end_src
+
+** Extending Classes
+- Companion Objects and Class Methods
+- Inheritance
+- Traits
+
+** Exercises
+#+BEGIN_CENTER
+EXERCISES
+#+END_CENTER
+
+* Day 2
+
+** Day 2: Clipping Bushes and Other New Tricks
+- Simple Functions
+- Mutable and Immutable Variables
+- Collections
+** A Simple Function
+#+begin_src scala
+    def double(x:Int):Int = {
+      x * 2
+    }
+#+end_src
+
+** var vs. val
+- var :: mutable
+- val :: immutable
+
+#+BEGIN_QUOTE
+Mutable state limits concurrency.
+#+END_QUOTE
+
+** Collections
+- Lists
+- Sets
+- Maps
+
+** Any and Nothing
+*Any* is the root class in the Scala class hierarchy.
+
+*Nothing* is a subtype of every type.
+
+#+BEGIN_QUOTE
+Everything inherits from *Any*, and *Nothing* inherits from
+everything.
+#+END_QUOTE
+
+** Collections and Functions
+- =foreach=
+  
+  #+begin_src scala
+    hobbits.foreach(hobbit => println(hobbit._1))
+    // frodo
+    // samwise
+    // pippin
+  #+end_src
+
+- List methods (=isEmpty=, =length=, =size=)
+
+  #+begin_src scala
+    list.isEmpty // Boolean = false
+    Nil.isEmpty // Boolean = true
+    list.head // java.lang.String = frodo
+    list.tail // List[java.lang.string] = List(samwise, pippin)
+  #+end_src
+
+- =count=, =map=, =filter=, and others
+  #+begin_src scala
+    words.count(word => word.size > 2)
+    words.filter(word => word.size > 2)
+    words.map(word => word.size)
+    words.exists(word => word.size > 4)
+  #+end_src
+
+** foldLeft
+#+begin_src scala
+  val list = List(1, 2, 3)
+  val sum = (0 /: list) {(sum, i) => sum + i}
+  // sum: Int = 6
+#+end_src
+
+- We invoke the operator with a value and a code block. The code block
+  takes two arguments, =sum= and =i= .
+- Initially, =/:= takes the initial value, =0=, and the first element
+  of =list=, =1=, and passes them into the code block. =sum= is =0=,
+  =i= is =1=, and the result of =0 + 1= is =1= .
+- Next, =/:= takes =1=, the result returned from the code block, and
+  folds it back into the calculation as =sum= . So, =sum= is =1= ; =i=
+  is the next element of =list=, or =2=; and the result of the code
+  block is =3=.
+- Finally, =/:= takes =3=, the result returned from the code block,
+  and folds it back into the calculation as =sum=. So, =sum= is =3=;
+  =i= is the next element of =list=, or =3=; and =sum + i= is =6=.
+
+** Exercises
+#+BEGIN_CENTER
+EXERCISES
+#+END_CENTER
+
+* Day 3
+
+** Day 3: Cutting Through the Fluff
+- XML DSL
+- Pattern Matching
+- Guards
+- Regular Expressions
+- Concurrency
+** XML
+#+begin_src scala
+  val movies =
+    <movies>
+        <movie genre="action">Pirates of the Caribbean</movie>
+        <movie genre="fairytale">Edward Scissorhands</movie>
+    </movies>
+
+  movies.text
+  // String =
+  // 
+  //       Pirates of the Caribbean
+  //       Edward Scissorhands
+  //
+#+end_src
+** Pattern Matching
+#+begin_src scala
+  def doChore(chore: String): String = chore match {
+    case "clean dishes" => "scrub, dry"
+    case "cook dinner" => "chop, sizzle"
+    case _ => "whine, complain"
+  }
+
+  println(doChore("clean dishes"))
+  // scrub, dry
+
+  println(doChore("mow lawn"))
+  // whine, complain
+#+end_src
+
+** Guards
+#+begin_src scala
+  def factorial(n: Int): Int = n match {
+      case 0 => 1
+      case x if x > 0 => factorial(n - 1) * n
+  }
+#+end_src
+
+** Regular Expressions
+#+begin_src scala
+  val reg = """^(F|f)\w*""".r
+
+  println(reg.findFirstIn("Fantastic"))
+  // Some(Fantastic)
+
+  println(reg.findFirstIn("not Fantastic"))
+  // None
+#+end_src
+
+** XML with Matching
+#+begin_src scala
+
+  val movies = <movies>
+      <movie>The Incredibles</movie>
+      <movie>WALL E</movie>
+      <short>Jack Jack Attack</short>
+      <short>Geri's Game</short>
+  </movies>
+
+  (movies \ "_").foreach { movie =>
+      movie match {
+          case <movie>{movieName}</movie> => println(movieName)
+          case <short>{shortName}</short> => println(shortName + " (short)") 
+      }
+  }
+  // The Incredibles
+  // WALL E
+  // Jack Jack Attack (short)
+  // Geri's Game (short)
+#+end_src
+
+** Concurrency
+#+begin_src scala
+  import scala.actors._
+  import scala.actors.Actor._
+
+  case object Poke
+  case object Feed
+
+  class Kid() extends Actor {
+    def act() {
+      loop {
+        react {
+          case Poke => {
+            println("Ow...")
+            println("Quit it...")
+          }
+          case Feed => {
+            println("Gurgle...")
+            println("Burp...")
+          }
+        }
+      }
+    }
+  }
+#+end_src
+
+** Exercises
+#+BEGIN_CENTER
+EXERCISES
+#+END_CENTER
+
+* Wrapping Up
+
+** Wrapping Up Scala: Strengths
+- Concurrency
+- Evolution of Legacy Java
+- Domain-Specific Languages
+- XML
+- Bridging
+** Wrapping Up Scala: Weaknesses
+- Static Typing (with mixed paradigms)
+- Syntax
+- Mutability
+** Final Thoughts
+Scala represents a bridge between the large Java community and
+functional, concurrent programming.
