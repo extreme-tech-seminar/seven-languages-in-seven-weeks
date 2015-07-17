@@ -25,7 +25,7 @@
                                                                         ":"))
                                                      " ")))))))
       (let* ((time (org-entry-get pom "SCHEDULED"))
-           (end-time (org-habit-streaks--parse-scheduled-end-time time)))
+           (end-time (funcall parse-end-time time)))
       (if end-time
           (apply 'encode-time end-time)
         (org-get-scheduled-time pom inherit)))))
@@ -55,7 +55,7 @@
                           "pragprog.com/book/btlang\\\\"
                           "COUPON CODE: ExtremeTech7\\\\"
                           "#+END_CENTER"
-                          "#+LATEX: \\footnotesize\\color{trek@darkpurple}"
+                          "#+LATEX: \\footnotesize\\color{red}"
                           "#+BEGIN_CENTER"
                           "FOOD WILL BE PROVIDED"
                           "#+END_CENTER")
@@ -80,19 +80,6 @@ SCHEDULED: <2015-06-24 Wed 18:00-20:00>
   (xts-announcement "Franklin Training Room"
                     "The logic programming language, \"Prolog\"")
 #+end_src
-#+begin_src emacs-lisp :results code
-  (let ((scheduled (concat "<" (org-entry-get (point) "SCHEDULED") ">")))
-    (string-match org-ts-regexp1 scheduled)
-    (match-string 20 scheduled)
-    (s-match-strings-all org-ts-regexp1 scheduled)
-    ;;(org-parse-time-string (match-string 2))
-    )
-#+end_src
-
-#+RESULTS:
-#+BEGIN_SRC emacs-lisp
-(("2015-06-24 Wed 18:00" "2015-06-24 Wed 18:00" "2015" "06" "24" "Wed" " 18:00" "18" "00"))
-#+END_SRC
 * Scala
 SCHEDULED: <2015-07-08 Wed 18:00-20:00>
 #+begin_src emacs-lisp :exports results :results raw
@@ -100,19 +87,19 @@ SCHEDULED: <2015-07-08 Wed 18:00-20:00>
                     "The functional/object-oriented hybrid JVM language, \"Scala\"")
 #+end_src
 * Erlang
-SCHEDULED: <2015-07-22 Wed 18:00-20:00>
+SCHEDULED: <2015-07-29 Wed 18:00-20:00>
 #+begin_src emacs-lisp :exports results :results raw
   (xts-announcement "Franklin Training Room"
                     "The concurrent, functional language, \"Erlang\"")
 #+end_src
 * Closure
-SCHEDULED: <2015-08-05 Wed 18:00-20:00>
+SCHEDULED: <2015-08-12 Wed 18:00-20:00>
 #+begin_src emacs-lisp :exports results :results raw
   (xts-announcement "Franklin Training Room"
                     "The JVM lisp, \"Closure\"")
 #+end_src
 * Haskell
-SCHEDULED: <2015-08-19 Wed 18:00-20:00>
+SCHEDULED: <2015-08-26 Wed 18:00-20:00>
 #+begin_src emacs-lisp :exports results :results raw
   (xts-announcement "Franklin Training Room"
                     "The pure functional language \"Haskell\"")
