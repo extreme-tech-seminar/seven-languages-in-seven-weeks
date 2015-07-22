@@ -1,0 +1,669 @@
+#+TITLE: Seven Languages in Seven Weeks
+#+BEAMER_HEADER: \subtitle{Erlang/OTP}
+#+BEAMER_HEADER: \institute[INST]{Extreme Tech Seminar}
+#+AUTHOR: Correl Roush
+#+EMAIL: correl@gmail.com
+#+DATE: July 29, 2015
+#+OPTIONS: H:2 toc:nil ^:nil
+#+STARTUP: beamer indent
+#+COLUMNS: %45ITEM %10BEAMER_env(Env) %10BEAMER_act(Act) %4BEAMER_col(Col) %8BEAMER_opt(Opt)
+#+PROPERTY: BEAMER_col_ALL 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.0 :ETC
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [presentation,aspectratio=169]
+#+LaTeX_HEADER: \usemintedstyle{solarizeddark}
+
+#+LaTeX_HEADER: \definecolor{darkred}{rgb}{0.55,0.0,0.0}
+
+#+begin_src emacs-lisp :exports results :results silent
+  (defun vector-image (name)
+    (let ((basename (concat (file-name-base buffer-file-name) "-" name)))
+      (cond ((eq org-export-current-backend 'latex)
+             (concat basename ".eps"))
+            (t (concat basename ".svg")))))
+#+end_src
+
+* Introduction
+** Introduction
+*** Erlang/OTP                                                        :BMCOL:
+:PROPERTIES: 
+:BEAMER_col: 0.5
+:END:      
+- Created :: 1986
+- Author :: Joe Armstrong, Robert Virding, and Mike Williams
+            
+A functional language built for concurrency and reliability.
+*** Agent Smith                                                       :BMCOL:
+:PROPERTIES: 
+:BEAMER_col: 0.5
+:END:      
+#+ATTR_LATEX: :width \textwidth
+[[file:Agent_Smith2.jpg]]
+** Getting Erlang/OTP
+[[http://www.erlang.org/]]
+** Concurrency
+- Lightweight processes
+- No shared state
+- Transparently distributed message passing
+- Processes as actors
+** Reliability                                                     :B_frame:
+:PROPERTIES:
+:BEAMER_env: frame
+:END:
+- "Let it crash" approach to error handling
+- Process monitoring and restarting
+- Hot code loading
+
+#+BEGIN_QUOTE
+The whole notion of “nondefensive” programming and “Let It Crash,”
+which is the mantra of Erlang programming, is completely the opposite
+of conventional practice, but it leads to really short and beautiful
+programs.
+
+-- Dr. Joe Armstrong
+#+END_QUOTE
+* Day 1
+** Day 1: Appearing Human
+
+*** Agent Smith                                                     :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+[[file:agent_smith.jpg]]
+*** Functional Concepts                                             :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+Erlang is the first of our functional languages:
+
+-  Your programs are going to be built entirely out of functions, with
+   no objects anywhere.
+
+-  Those functions will usually return the same values, given the same
+   inputs.
+
+-  Those functions will not usually have side effects, meaning they
+   will not modify program state.
+
+-  You will only be able to assign any variable once.
+** Comments and Expressions
+#+begin_src erlang
+  % This is a comment
+
+  2 + 2.                            % 4
+  2 + 2.0.                          % 4
+  "string".                         % "string"
+  [1, 2, 3].                        % [1,2,3]
+  [72, 97, 32, 72, 97, 32, 72, 97]. % "Ha Ha Ha"
+#+end_src
+
+#+BEGIN_QUOTE
+So, a =String= is really a =List=, and Agent Smith just laughed at
+your mamma.
+#+END_QUOTE
+** Variables
+#+begin_src erlang
+  variable = 4.
+  %% ** exception error: no match of right hand side value 4
+#+end_src
+
+This error message is really a reference to Erlang's pattern matching.
+It's breaking because =variable= is an *atom*. Variables must start
+with an uppercase letter.
+
+#+begin_src erlang
+  Var = 1.
+  %% 1
+
+  Var = 2.
+  %% ** exception error: no match of right hand side value 2
+#+end_src
+
+As you can see, variables begin with a capital letter, and they are
+immutable. You can assign each value only once.
+** Atoms, Lists, and Tuples
+***                                                                 :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+**** Atoms                                                     :B_example:
+:PROPERTIES:
+:BEAMER_env: example
+:END:
+#+begin_src erlang
+  red.
+  %% red
+  Pill = blue.
+  %% blue
+  Pill.
+  %% blue
+#+end_src
+**** Lists                                                     :B_example:
+:PROPERTIES:
+:BEAMER_env: example
+:END:
+#+begin_src erlang
+  [1, 2, 3].
+  %% [1,2,3]
+  [1, 2, "three"].
+  %% [1,2,"three"]
+  List = [1, 2, 3].
+  %% [1,2,3]
+#+end_src
+***                                                                 :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+**** Tuples                                                    :B_example:
+:PROPERTIES:
+:BEAMER_env: example
+:END:
+#+begin_src erlang
+  {one, two, three}.
+  %% {one,two,three}
+  Origin = {0, 0}.
+  %% {0,0}
+#+end_src
+**** Tuples as hashes                                          :B_example:
+:PROPERTIES:
+:BEAMER_env: example
+:END:
+#+begin_src erlang
+  {comic_strip,
+   {name, "Calvin and Hobbes"},
+   {character, "Spaceman Spiff"}}.
+#+end_src
+* Day 1 Interlude: Data Structures
+#+BEGIN_LaTeX
+  \setbeamercolor{frametitle}{fg=red}
+  \setbeamercolor{sidebar}{fg=darkred}
+  \setbeamercolor{title in head/foot}{fg=red}
+#+END_LaTeX
+** Data Structures
+#+BEGIN_CENTER
+#+BEGIN_LaTeX
+\fontspec{Antonio-Bold}\color{red}
+\fontsize{80}{80}\selectfont
+ADDENDUM
+
+\huge
+\color{darkred}
+Data Structures
+#+END_LaTeX
+#+END_CENTER
+** Records and Maps
+- Records :: Provide structure and syntax around named tuples (tuples
+             where the first element is an atom describing the
+             contents of the tuple, e.g. ={alias, "Thomas A.
+             Anderson", "Neo"}=).
+- Maps :: A new mapping type with its own syntax, added in Erlang/OTP
+          17.0. Allows keys of any type.
+** Record and Map Examples
+*** Record                                                  :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_env: example
+:BEAMER_col: 0.5
+:END:
+#+begin_src erlang
+  -record(comic_strip,
+          {name, character}).
+
+  Strip = #comic_strip{
+             name = "Calvin and Hobbes",
+             character = "Spaceman Spiff"}.
+  %% {comic_strip, "Calvin and Hobbes",
+  %%               "Spaceman Spiff"}
+
+  Strip#comic_strip.name.
+  %% "Calvin and Hobbes"
+#+end_src
+*** Map                                                     :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_env: example
+:BEAMER_col: 0.5
+:END:
+#+begin_src erlang
+  Strip = #{name => "Calvin and Hobbes",
+            character => "Spaceman Spiff"}.
+  %% #{name => "Calvin and Hobbes",
+  %%   character => "Spaceman Spiff"}.
+
+  maps:get(name, Strip).
+  %% "Calvin and Hobbes"
+#+end_src
+** Property Lists and Dictionaries
+- Property Lists :: Ordinary lists containing entries in the form of
+                    either tuples, whose first elements are keys used
+                    for lookup and insertion, or atoms, which work as
+                    shorthand for tuples ={Atom, true}=.
+
+                    Property lists are useful for representing
+                    inherited properties, such as options passed to a
+                    function where a user may specify options
+                    overriding the default settings, object
+                    properties, annotations, etc.
+
+- Dictionaries :: Implements a =Key - Value= dictionary. The
+                  representation of a dictionary is not defined.
+
+** Proplist and Dict Examples
+*** Proplist                                                :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_env: example
+:BEAMER_col: 0.5
+:END:
+#+begin_src erlang
+  Strip = [{name, "Calvin and Hobbes"},
+           {character, "Spaceman Spiff"}].
+  %% [{name, "Calvin and Hobbes"},
+  %%  {character, "Spaceman Spiff"}]
+
+  proplists:get_value(name, Strip).
+  %% "Calvin and Hobbes"
+#+end_src
+*** Dict                                                    :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_env: example
+:BEAMER_col: 0.5
+:END:
+#+begin_src erlang
+  Strip = dict:from_list(
+            [{name, "Calvin and Hobbes"},
+             {character, "Spaceman Spiff"}]).
+  %% ...
+
+  dict:fetch(name, Strip).
+  %% "Calvin and Hobbes"
+#+end_src
+* Day 1: Continued
+#+BEGIN_LaTeX
+  \setbeamercolor{frametitle}{fg=trek@lightorange}
+  \setbeamercolor{sidebar}{fg=trek@darkorange}
+  \setbeamercolor{title in head/foot}{fg=trek@lightorange}
+#+END_LaTeX
+** Pattern Matching
+#+begin_src erlang
+  Person = {person,
+            {name, "Agent Smith"},
+            {profession, "Killing Programs"}}.
+
+  {person, {name, Name}, {profession, Profession}} = Person.
+
+  Name.
+  %% "Agent Smith"
+
+  Profession.
+  %% "Killing Programs"
+#+end_src
+
+Erlang will match up the data structures, assigning variables to the
+values in the tuples.
+** Pattern Matching (Lists)
+#+begin_src erlang
+  [Head | Tail] = [1, 2, 3].
+  %% Head = 1
+  %% Tail = [2,3]
+
+  [One, Two|Rest] = [1, 2, 3].
+  %% One = 1
+  %% Two = 2
+  %% Rest = [3]
+
+  [X|Rest] = [].
+  %% ** exception error: no match of right hand side value []
+#+end_src
+
+** Binary Pattern Matching
+
+*** Packing                                               :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:BEAMER_env: example
+:END:
+#+begin_src erlang
+  W = 1.
+  X = 2.
+  Y = 3.
+  Z = 4.
+  All = <<W:3, X: 3, Y:5, Z:5>>.
+  %% <<"(d">>
+#+end_src
+
+*** Unpacking                                             :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:BEAMER_env: example
+:END:
+#+begin_src erlang
+  <<A:3, B:3, C:5, D:5>> = All.
+  %% A = 1
+  %% B = 2
+  %% C = 3
+  %% D = 4
+#+end_src
+
+** Functions
+
+*** Simple                                                          :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+#+caption: basic.erl
+#+begin_src erlang
+  -module(basic).
+  -export([mirror/1]).
+
+  mirror(Anything) -> Anything.
+#+end_src
+
+#+caption: matching_function.erl
+#+begin_src erlang
+  -module(matching_function).
+  -export([number/1]).
+
+  number(one)   -> 1;
+  number(two)   -> 2;
+  number(three) -> 3.
+#+end_src
+
+*** Factorial                                                       :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+#+caption: yet_again.erl
+#+begin_src erlang
+  -module(yet_again).
+  -export([another_factorial/1,
+           another_fib/1]).
+
+  another_factorial(0) ->
+      1;
+  another_factorial(N) ->
+      N * another_factorial(N - 1).
+
+  another_fib(0) ->
+      1;
+  another_fib(1) ->
+      1;
+  another_fib(N) ->
+      another_fib(N - 1) + another_fib(N - 2).
+#+end_src
+
+* Day 2
+** Day 2: Changing Forms
+#+BEGIN_CENTER
+#+ATTR_LATEX: :width 0.25\textwidth
+[[file:agent-transform-1.png]]
+#+ATTR_LATEX: :width 0.25\textwidth
+[[file:agent-transform-2.png]]
+#+ATTR_LATEX: :width 0.25\textwidth
+[[file:agent-transform-3.png]]
+#+END_CENTER
+#+BEGIN_QUOTE
+You’re going to learn to apply functions to lists that can quickly
+shape the list into exactly what you need. Do you want to turn a
+shopping list into a list of prices? What about turning a list of URLs
+into tuples containing content and URLs? These are the problems that
+functional languages simply devour.
+#+END_QUOTE
+** Control Structures: Case
+#+begin_src erlang
+  Animal = "dog".
+  case Animal of
+      "dog" -> underdog;
+      "cat" -> thundercat
+  end.
+  %% underdog
+
+  case Animal of
+      "elephant" -> dumbo;
+      _ -> something_else
+  end.
+  %% something_else
+#+end_src
+** Control Structures: If
+#+begin_src erlang
+  X = 0.
+
+  if
+      X > 0 -> positive;
+      X < 0 -> negative
+  end.
+  %% ** exception error: no true branch found when evaluating an if expression
+
+  if
+      X > 0 -> positive;
+      X < 0 -> negative;
+      true  -> zero
+  end.
+  %% zero
+#+end_src
+** Anonymous Functions
+#+begin_src erlang
+  Negate = fun(I) -> -I end.
+  %% #Fun<erl_eval.6.13229925>
+
+  Negate(1).
+  %% -1
+  Negate(-1).
+  %% 1
+#+end_src
+** Lists and Higher-Order Functions
+*** Left                                                            :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+#+begin_src erlang
+  Numbers = [1, 2, 3, 4].
+  Print = fun(X) -> io:format("~p~n", [X]).
+
+  lists:foreach(Print, Numbers).
+  %% 1
+  %% 2
+  %% 3
+  %% 4
+  %% ok
+
+  lists:map(fun(X) -> X + 1 end, Numbers).
+  %% [2,3,4,5]
+
+  Small = fun(X) -> X < 3 end.
+  lists:filter(Small, Numbers).
+  %% [1,2]
+  lists:all(Small, [0, 1, 2]).
+  %% true
+  lists:all(Small, [0, 1, 2, 3]).
+  %% false
+#+end_src
+*** Right                                                           :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+#+begin_src erlang
+  lists:any(Small, [0, 1, 2, 3]).
+  %% true
+  lists:any(Small, [3, 4, 5]).
+  %% false
+
+  lists:any(Small, []).
+  %% false
+  lists:all(Small, []).
+  %% true
+
+  lists:takewhile(Small, Numbers).
+  %% [1,2]
+  lists:dropwhile(Small, Numbers).
+  %% [3,4]
+  lists:takewhile(Small, [1, 2, 1, 4, 1]).
+  %% [1,2,1]
+  lists:dropwhile(Small, [1, 2, 1, 4, 1]).
+  %% [4,1]
+#+end_src
+** Foldl
+#+begin_src erlang
+  Numbers.
+  %% [1,2,3,4]
+
+  Adder = fun(ListItem, SumSoFar) -> ListItem + SumSoFar end.
+  InitialSum = 0.
+
+  lists:foldl(Adder, InitialSum, Numbers).
+  %% 10
+#+end_src
+** List Construction
+#+begin_src erlang
+  double_all([]) -> [];
+  double_all([First|Rest]) -> [First + First|double_all(Rest)].
+#+end_src
+*** Examples                                              :B_ignoreheading:
+:PROPERTIES:
+:BEAMER_env: ignoreheading
+:END:
+**** Erlang                                              :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:BEAMER_env: example
+:END:
+#+begin_src erlang
+  [1 | [2, 3]].
+  %% [1,2,3]
+
+  [[2, 3] | 1].
+  %% [[2,3]|1]
+
+  [[] | [2, 3]].
+  %% [[],2,3]
+
+  [1 | []].
+  %% [1]
+#+end_src
+**** Box-and-pointer Diagrams                            :B_example:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:header-args: :cmdline -E
+:BEAMER_env: example
+:END:
+
+#+begin_src ditaa :file erlang-boxandpointer.png
+  [1 | [2, 3]]
+  +-----+-----+    +-----+-----+    +-----+-----+
+  |     |cAAA |    |     |cAAA |    |     |cBLK |
+  |  1  |     +--> |  2  |     +--> |  3  |     |
+  |     |     |    |     |     |    |     |     |
+  +-----+-----+    +-----+-----+    +-----+-----+
+
+  -----------------------------------------------
+
+  [[2, 3] | 1]
+  +-----+-----+    +-----+-----+
+  |cAAA |cAAA |    |     |cBLK |
+  |     |     +--> |  1  |     |
+  |     |     |    |     |     |
+  +--+--+-----+    +-----+-----+
+     |                 
+     v                 
+  +-----+-----+    +-----+-----+
+  |     |cAAA |    |     |cBLK |
+  |  2  |     +--> |  3  |     |
+  |     |     |    |     |     |
+  +-----+-----+    +-----+-----+
+
+  -----------------------------------------------
+
+  [[] | [2, 3]]
+  +-----+-----+    +-----+-----+
+  |cBLK |cAAA |    |cAAA |cBLK |
+  |     |     +--> |     |     |
+  |     |     |    |     |     |
+  +-----+-----+    +--+--+-----+
+                      |
+                      v
+                   +-----+-----+    +-----+-----+
+                   |     |cAAA |    |     |cBLK |
+                   |  2  |     +--> |  3  |     |
+                   |     |     |    |     |     |
+                   +-----+-----+    +-----+-----+
+          
+  -----------------------------------------------
+
+  [1 | []]    
+  +-----+-----+
+  |     |cBLK |
+  |  1  |     |
+  |     |     |
+  +-----+-----+
+#+end_src
+
+#+ATTR_LATEX: :width 0.5\textwidth
+#+RESULTS:
+[[file:erlang-boxandpointer.png]]
+** List Comprehensions
+List comprehensions provide a succinct syntax combining mapping,
+filtering, and pattern matching.
+
+- Take the form =[Expression || Clause1, Clause2, ..., ClauseN]=.
+- List comprehensions can have an arbitrary number of clauses.
+- The clauses can be *generators* or *filters*.
+  - A filter can be a boolean expression or a function returning a
+    boolean.
+  - A generator, of the form =Match <- List=, matches a pattern on the
+    left to the elements on the right.
+** List Comprehension Examples
+#+begin_src erlang
+  Fibs = [1, 1, 2, 3, 5].
+  Double = fun(X) -> X * 2 end.
+  [Double(X) || X <- Fibs].
+  %% [2,2,4,6,10]
+
+  Cart = [{pencil, 4, 0.25}, {pen, 1, 1.20}, {paper, 2, 0.20}].
+  WithTax = [{Product, Quantity, Price, Price * Quantity * 0.08} ||
+                {Product, Quantity, Price} <- Cart].
+  %% [{pencil,4,0.25,0.08},{pen,1,1.2,0.096},{paper,2,0.2,0.032}]
+  Cat = [{Product, Price} || {Product, _, Price} <- Cart].
+  %% [{pencil,0.25},{pen,1.2},{paper,0.2}]
+
+  [X || X <- [1, 2, 3, 4], X < 4, X > 1].
+  %% [2,3]
+
+  [{X, Y} || X <- [1, 2, 3, 4], X < 3, Y <- [5, 6]].
+  %% [{1,5},{1,6},{2,5},{2,6}]
+#+end_src
+* Day 3
+** Day 3: The Red Pill
+#+BEGIN_CENTER
+#+ATTR_LATEX: :width 0.5\textwidth
+[[file:morpheus-red-pill.jpg]]
+#+END_CENTER
+#+BEGIN_QUOTE
+I didn't say that it would be easy. I just said that it would be the
+truth. You have to let it all go. Fear, doubt, and disbelief. Free
+your mind.
+#+END_QUOTE
+* Day ∞
+#+BEGIN_LaTeX
+  \setbeamercolor{frametitle}{fg=red}
+  \setbeamercolor{sidebar}{fg=darkred}
+  \setbeamercolor{title in head/foot}{fg=red}
+#+END_LaTeX
+** Day ∞: OTP
+#+BEGIN_CENTER
+#+BEGIN_LaTeX
+\fontspec{Antonio-Bold}\color{red}
+\fontsize{120}{120}\selectfont
+OTP
+
+\huge
+\color{darkred}
+The Open Telecom Platform
+#+END_LaTeX
+#+END_CENTER
+** OTP
+#+BEGIN_CENTER
+#+ATTR_LATEX: :width \textwidth
+[[file:agent_code.jpg]]
+#+END_CENTER
+
+#+BEGIN_QUOTE
+There's way too much information to decode in the Matrix. You get used
+to it, though. OTP does the translating. I don't even see the code.
+All I see is supervisor, gen_server, release...
+#+END_QUOTE
