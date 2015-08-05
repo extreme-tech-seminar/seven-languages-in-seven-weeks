@@ -92,11 +92,11 @@ SCHEDULED: <2015-07-29 Wed 18:00-20:00>
   (xts-announcement "Franklin Training Room"
                     "The concurrent, functional language, \"Erlang\"")
 #+end_src
-* Closure
+* Clojure
 SCHEDULED: <2015-08-12 Wed 18:00-20:00>
 #+begin_src emacs-lisp :exports results :results raw
   (xts-announcement "Franklin Training Room"
-                    "The JVM lisp, \"Closure\"")
+                    "The JVM lisp, \"Clojure\"")
 #+end_src
 * Haskell
 SCHEDULED: <2015-08-26 Wed 18:00-20:00>
