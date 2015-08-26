@@ -1,0 +1,579 @@
+#+TITLE: Seven Languages in Seven Weeks
+#+SUBTITLE: Haskell
+#+BEAMER_HEADER: \institute[INST]{Extreme Tech Seminar}
+#+AUTHOR: Correl Roush
+#+EMAIL: correl@gmail.com
+#+DATE: August 12, 2015
+#+OPTIONS: H:2 toc:nil ^:nil
+#+STARTUP: beamer indent
+#+COLUMNS: %45ITEM %10BEAMER_env(Env) %10BEAMER_act(Act) %4BEAMER_col(Col) %8BEAMER_opt(Opt)
+#+PROPERTY: BEAMER_col_ALL 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.0 :ETC
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [presentation,aspectratio=169]
+#+LaTeX_HEADER: \usemintedstyle{solarizeddark}
+
+* Introduction
+
+** Haskell
+#+BEGIN_CENTER
+#+ATTR_LATEX: :width 0.5\textwidth
+[[file:2000px-Haskell-Logo.svg.png]]
+#+END_CENTER
+** Introduction
+*** Haskell                                                         :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.6
+:END:
+
+- Created :: 1990
+- Author :: A committee of researchers and application programmers,
+     including John Hughes, Simon Peyton Jones, and Philip Wadler.
+*** Spock                                                           :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.4
+:END:
+
+#+ATTR_LATEX: :width \textwidth
+[[file:Spock_2267.jpg]]
+** Getting Haskell
+- https://www.haskell.org/
+- http://learnyouahaskell.com/
+* Day 1
+** Day 1: Logical
+#+BEGIN_QUOTE
+Haskell is a functional programming language. Its first distinguishing
+characteristic is that it is a pure functional language. A function
+with the same arguments will always produce the same result.
+#+END_QUOTE
+
+- Expressions
+- Types
+- Functions
+- Tuples and Lists
+- Function Composition
+- List Comprehensions
+** Expressions and Primitive Types
+*** Numbers
+#+BEGIN_SRC haskell
+  4           -- 4
+  4 + 1       -- 5
+  4 + 1.0     -- 5.0
+  4 + 2.0 * 5 -- 14.0
+#+END_SRC
+
+*** Strings
+#+BEGIN_SRC haskell
+  "hello" ++ " world" -- "hello world"
+  'a'                 -- 'a'
+  ['a', 'b']          -- "ab"
+#+END_SRC
+*** Booleans
+#+BEGIN_SRC haskell
+  (4 + 5) == 9  -- True
+  (5 + 5) /= 10 -- False
+  if (5 == 5) then "true" else "false" -- "true"
+#+END_SRC
+** Type Errors
+*** =if=
+#+BEGIN_SRC haskell :exports both :results code
+if 1 then "true" else "false"
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC haskell
+<interactive>:115:4:
+    No instance for (Num Bool) arising from the literal ‘1’
+    In the expression: 1
+    In the expression: if 1 then "true" else "false"
+    In an equation for ‘it’: it = if 1 then "true" else "false"
+#+END_SRC
+*** =+=
+#+BEGIN_SRC haskell :exports both :results code
+"one" + 1
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC haskell
+<interactive>:121:7:
+    No instance for (Num [Char]) arising from a use of ‘+’
+    In the expression: "one" + 1
+    In an equation for ‘it’: it = "one" + 1
+#+END_SRC
+** Functions
+*** Simple
+#+BEGIN_SRC haskell :exports both :results code
+  let double x = x + x
+  double 2
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC haskell
+4
+#+END_SRC
+
+#+BEGIN_SRC haskell :exports both :results code
+  :t double
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC haskell
+double :: Num a => a -> a
+#+END_SRC
+*** Recursive
+#+BEGIN_SRC haskell
+  factorial :: Integer -> Integer
+  factorial x
+      | x > 1 = x * factorial (x - 1)​
+      | otherwise = 1
+#+END_SRC
+** Tuples
+*** Code
+#+BEGIN_SRC haskell :exports code :tangle fib_tuple.hs
+  module Main where
+  
+  fibTuple :: (Integer, Integer, Integer) -> (Integer, Integer, Integer)
+  fibTuple (x, y, 0) = (x, y, 0)
+  fibTuple (x, y, index) = fibTuple (y, x + y, index - 1)
+
+  fibResult :: (Integer, Integer, Integer) -> Integer
+  fibResult (x, y, z) = x
+
+  fib :: Integer -> Integer
+  fib x = fibResult (fibTuple (0, 1, x))
+#+END_SRC
+*** Results
+#+BEGIN_SRC haskell :results code :exports both
+  :l fib_tuple
+  fib 100
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC haskell
+354224848179261915075
+#+END_SRC
+** Tuples and Composition
+#+BEGIN_SRC haskell :tangle fib_pair.hs
+  module Main where
+
+  fibNextPair :: (Integer, Integer) -> (Integer, Integer)
+  fibNextPair (x, y) = (y, x + y)
+
+  fibNthPair :: Integer -> (Integer, Integer)
+  fibNthPair 1 = (1, 1)
+  fibNthPair n = fibNextPair (fibNthPair (n - 1))
+
+  fib :: Integer -> Integer
+  fib = fst . fibNthPair
+#+END_SRC
+** Traversing Lists
+*** Pattern Matching
+#+BEGIN_SRC haskell
+  let (h:t) = [1, 2, 3 4]
+  -- h = 1
+  -- t = [2,3,4]
+#+END_SRC
+*** Recursive Traversal
+#+BEGIN_SRC haskell
+  size [] = 0
+  size (h:t) = 1 + size t
+
+  prod [] = 1
+  prod (h:t) = h * prod t
+#+END_SRC
+*** Zip
+#+BEGIN_SRC haskell
+  zip ["kirk", "spock"] ["enterprise", "reliant"]
+  -- [("kirk","enterprise"),("spock","reliant")]
+#+END_SRC
+** Generating Lists
+*** Recursion
+#+BEGIN_SRC haskell
+  allEven :: [Integer] -> [Integer]
+  allEven [] = []
+  allEven (h:t) = if even h then h:allEven t else allEven t
+#+END_SRC
+*** Ranges and Composition
+**** Ranges                                                        :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+#+BEGIN_SRC haskell
+  [1..4]       -- [1,2,3,4]
+  [10..4]      -- []
+  [10, 8 .. 4] -- [10,8,6,4]
+#+END_SRC
+**** Composition                                                   :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+#+BEGIN_SRC haskell
+  take 5 [1..]    -- [1,2,3,4,5]
+  take 5 [0, 2..] -- [0,2,4,6,8]
+#+END_SRC
+*** List Comprehensions
+#+BEGIN_SRC haskell
+  [x * 2 | x <- [1, 2, 3]] -- [2,4,6]
+  [(4 - x, y) | (x, y) <- [(1, 2), (2, 3), (3, 1)]] -- [(3,2),(2,3),(1,1)]
+
+  let crew = ["Kirk", "Spock", "McCoy"]
+  [(a, b) | a <- crew, b <- crew, a < b]
+  -- [("Kirk","Spock"),("Kirk","McCoy"),("McCoy","Spock")]
+#+END_SRC
+** An Interview with Philip Wadler
+#+BEGIN_QUOTE
+The original goals were not modest: we wanted the language to be a
+foundation for research, suitable for teaching, and up to industrial
+uses.
+#+END_QUOTE
+* Day 2
+** Day 2: Spock's Greatest Strength
+#+BEGIN_QUOTE
+Haskell's great strength is also that predictability and simplicity of
+logic. Many universities teach Haskell in the context of reasoning
+about programs. Haskell makes creating proofs for correctness far
+easier than imperative counterparts.
+#+END_QUOTE
+
+- Higher Order Functions
+- Partial Application and Currying
+- Lazy Evaluation
+** Higher-Order Functions
+*** Anonymous Functions
+#+BEGIN_SRC haskell
+  (\x -> x ++ " captain.") "Logical, "
+  -- "Logical, captain."
+#+END_SRC
+*** =map= and =where=
+#+BEGIN_SRC haskell
+  squareAll list = map square list
+    where square x = x * x
+
+  squareAll [1, 2, 3] -- [1,4,9]
+  map (+ 1) [1, 2, 3] -- [2,3,4]
+#+END_SRC
+*** =filter=, =foldl=, =foldr=
+#+BEGIN_SRC haskell
+filter odd [1, 2, 3, 4, 5] -- [1,3,5]
+foldl (\x carryOver -> carryOver + x) 0 [1 .. 10] -- 55
+foldl (+) 0 [1 .. 3] -- 6
+#+END_SRC
+** Partial Application and Currying
+#+BEGIN_SRC haskell :results code :exports both
+let prod x y = x * y
+:t prod
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC haskell
+prod :: Num a => a -> a -> a
+#+END_SRC
+
+
+#+BEGIN_SRC haskell
+let double = prod 2
+let triple = prod 3
+
+double 3 -- 6
+triple 4 -- 12
+#+END_SRC
+
+So, the mystery is solved. When Haskell computes =prod 2 4=, it is
+really computing =(prod 2) 4=, like this:
+
+- First, apply =prod 2=. That returns the function =(\y -> 2 * y)=.
+
+- Next, apply =(\y -> 2 * y) 4=, or =2 * 4=, giving you 8.
+** Lazy Evaluation
+#+BEGIN_SRC haskell
+let lazyFib x y = x:(lazyFib y (x + y))
+let fib = lazyFib 1 1
+let fibNth x = head (drop (x - 1) (take (x) fib))
+
+take 5 (fib) -- [1,1,2,3,5]
+take 5 (drop 20 (lazyFib 0 1)) -- [6765,10946,17711,28657,46368]
+
+take 5 (map ((* 2) . (* 5)) fib) -- [10,10,20,30,50]
+#+END_SRC
+*** Composition                                                   :B_block:
+:PROPERTIES:
+:BEAMER_env: block
+:END:
+In Haskell, =f . g x= is shorthand for =f(g x)=.
+** An Interview with Simon Peyton-Jones
+#+BEGIN_QUOTE
+Apart from purity, probably the most unusual and interesting feature
+of Haskell is its type system. Static types are by far the most widely
+used program verification technique available today: millions of
+programmers write types (which are just partial specifications) every
+day, and compilers check them every time they compile the program.
+Types are the UML of functional programming: a design language that
+forms an intimate and permanent part of the program.
+#+END_QUOTE
+* Day 3
+** Day 3: The Mind Meld
+- Classes and Types
+- Monads
+** Basic Types
+#+BEGIN_SRC haskell
+  'c'             :: Char
+  "abc"           :: [Char]
+  ['a', 'b', 'c'] :: [Char]
+  True            :: Bool
+  False           :: Bool
+#+END_SRC
+** User-Defined Types
+#+BEGIN_SRC haskell
+  data Suit = Spades | Hearts
+            deriving Show
+  data Rank = Ten | Jack | Queen | King | Ace
+            deriving Show
+
+  type Card = (Rank, Suit)
+  type Hand = [Card]
+
+  value :: Rank -> Integer
+  value Ten   = 1
+  value Jack  = 2
+  value Queen = 3
+  value King  = 4
+  value Ace   = 5
+
+  cardValue :: Card -> Integer
+  cardValue (rank, suit) = value rank
+#+END_SRC
+** Functions and Polymorphism
+*** Generic Functions
+#+BEGIN_SRC haskell
+backwards [] = []
+backwards (h:t) = backwards t ++ [h]
+#+END_SRC
+
+Could be typed as
+#+BEGIN_SRC haskell
+backwards :: Hand -> Hand
+#+END_SRC
+or
+#+BEGIN_SRC haskell
+backwards :: [a] -> [a]
+#+END_SRC
+*** Polymorphic Data Types
+#+BEGIN_SRC haskell
+data Triplet a = Trio a a a deriving (Show)
+#+END_SRC
+
+Could be used as:
+#+BEGIN_SRC haskell
+Trio 'a' 'b' 'c' :: Triplet Char
+#+END_SRC
+** Recursive Types
+*** Defining a tree data type
+#+BEGIN_SRC haskell
+  data Tree a = Children [Tree a]
+              | Leaf a
+              deriving (Show)
+#+END_SRC
+*** Constructing and deconstructing a tree of integers
+#+BEGIN_SRC haskell
+  let tree = Children [Leaf 1, Children [Leaf 2, Leaf 3]] :: Tree Integer
+  let (Children ch) = tree
+  -- ch = [Leaf 1, Children [Leaf 2, Leaf 3]]
+  let (fst:tail) = ch
+  -- fst = Leaf 1
+#+END_SRC
+*** Calculating the depth of a tree
+#+BEGIN_SRC haskell
+  depth (Leaf _) = 1
+  depth (Children c) = 1 + maximum (map depth c)
+#+END_SRC
+** Classes
+- It's not an object-oriented class, because there's no data involved.
+- A class defines which operations can work on which inputs.
+- A class provides some function signatures. A type is an instance of
+  a class if it supports all those functions.
+
+#+BEGIN_SRC haskell
+  class Eq a where
+    (==), (/=) :: a -> a -> Bool
+
+    -- Minimal complete definition:
+    -- (==) or (/=)
+
+    x /= y = not (x == y)
+    x == y = not (x /= y)
+#+END_SRC
+** Class Inheritance
+[[file:haskell.classes.png]]
+** Monads
+** The Problem: Drunken Pirate
+#+BEGIN_SRC ruby
+  def treasure_map(v)
+    v = stagger(v)
+    v = stagger(v)
+    v = crawl(v)
+    return(v)
+  end
+#+END_SRC
+
+We have several functions that we call within =treasure_map= that
+sequentially transform our state, the =distance= traveled. The problem
+is that we have mutable state.
+** The Problem: Drunken Pirate
+#+BEGIN_SRC haskell
+  module Main where
+
+      stagger :: (Num t) => t -> t
+      stagger d = d + 2
+      crawl d = d + 1
+
+      treasureMap d = 
+          crawl (
+          stagger (
+          stagger d))
+
+      letTreasureMap (v, d) = let d1 = stagger d
+                                  d2 = stagger d1
+                                  d3 = crawl d2
+                              in d3
+#+END_SRC
+
+The inputs and outputs are the same, so it should be easier to compose
+these kinds of functions. We would like to translate
+=stagger(crawl(x))= into =stagger(x) · crawl(x)=, where =·= is
+function composition. That's a monad.
+** Components of a Monad
+At its basic level, a monad has three basic things:
+
+- A type constructor that's based on some type of container. The
+  container could be a simple variable, a list, or anything that can
+  hold a value. We will use the container to hold a function. The
+  container you choose will vary based on what you want your monad to
+  do.
+
+- A function called =return= that wraps up a function and puts it in
+  the container. The name will make sense later, when we move into =do=
+  notation. Just remember that =return= wraps up a function into a
+  monad.
+
+- A bind function called =>>== that unwraps a function. We'll use bind
+  to chain functions together.
+** Monadic Laws
+All monads will need to satisfy three rules. I'll mention them briefly
+here. For some monad =m=, some function =f=, and some value =x=:
+
+- You should be able to use a type constructor to create a monad that
+  will work with some type that can hold a value.
+
+- You should be able to unwrap and wrap values without loss of
+  information. (=monad >>= return = monad=)
+
+- Nesting bind functions should be the same as calling them
+  sequentially. (=(m >>= f) >>= g  =  m >>= (\x -> f x >>=
+** Building a Monad from Scratch
+#+BEGIN_SRC haskell
+  module Main where
+      data Position t = Position t deriving (Show)
+
+      stagger (Position d) = Position (d + 2)
+      crawl (Position d) = Position (d + 1)
+
+      rtn x = x
+      x >>== f = f x
+
+      treasureMap pos = pos >>== 
+                        stagger >>== 
+                        stagger >>== 
+                        crawl >>== 
+                        rtn
+#+END_SRC
+** Monads and =do= Notation
+#+BEGIN_SRC haskell
+  module Main where
+      tryIo = do  putStr "Enter your name: " ;
+                  line <- getLine ;
+                  let { backwards = reverse line } ;
+                  return ("Hello. Your name backwards is " ++ backwards)
+#+END_SRC
+** List Monad
+#+BEGIN_SRC haskell
+instance Monad [] where
+    m >>= f = concatMap f m
+    return x = [x]
+#+END_SRC
+
+#+BEGIN_SRC haskell
+  let cartesian (xs,ys) = do x <- xs; y <- ys; return (x,y)
+  cartesian ([1..2], [3..4])
+  -- [(1,3),(1,4),(2,3),(2,4)]
+#+END_SRC
+*** Password Cracker                                              :B_example:
+:PROPERTIES:
+:BEAMER_env: example
+:END:
+#+BEGIN_SRC haskell
+  module Main where
+      crack = do x <- ['a'..'c'] ; y <- ['a'..'c'] ; z <- ['a'..'c'] ; 
+                 let { password = [x, y, z] } ;
+                 if attempt password
+                      then return (password, True)
+                      else return (password, False)
+    
+      attempt pw = if pw == "cab" then True else False
+#+END_SRC
+** Maybe Monad
+In this section, we'll look at the =Maybe= monad. We'll use this one
+to handle a common programming problem: some functions might fail.
+
+#+BEGIN_SRC haskell
+  data Maybe a = Nothing | Just a​
+
+
+  instance Monad Maybe where​
+      return         = Just​
+      Nothing  >>= f = Nothing​
+      (Just x) >>= f = f x
+#+END_SRC
+** Using the Maybe Monad
+*** Without a monad
+#+BEGIN_SRC haskell
+  case (html doc) of
+    Nothing -> Nothing
+    Just x -> case body x of
+      Nothing -> Nothing
+      Just y -> paragraph 2 y
+#+END_SRC
+*** With the Maybe monad
+#+BEGIN_SRC haskell
+  Just someWebpage >>= html >>= body >>= paragraph >>= return
+#+END_SRC
+*** Railway-Oriented Programming                                   :B_note:
+:PROPERTIES:
+:BEAMER_env: note
+:END:
+[[http://fsharpforfunandprofit.com/posts/recipe-part2/][Railway-Oriented Programming]]
+* Wrapping Up
+** Wrapping Up Haskell: Strengths
+- Type System
+- Expressiveness
+- Purity of Programming Model
+- Lazy Semantics
+- Academic Support
+** Wrapping Up Haskell: Weaknesses
+- Inflexibility of Programming Model
+- Community
+- Learning Curve
+** Final Thoughts
+#+BEGIN_QUOTE
+Of the functional languages in the book, Haskell was the most
+difficult to learn. The emphasis on monads and the type system made
+the learning curve steep. Once I mastered some of the key concepts,
+things got easier, and it became the most rewarding language I
+learned. Based on the type system and the elegance of the application
+of monads, one day we’ll look back at this language as one of the most
+important in this book.
+#+END_QUOTE
+#+BEGIN_QUOTE
+Haskell plays another role, too. The purity of the approach and the
+academic focus will both improve our understanding of programming. The
+best of the next generation of functional programmers in many places
+will cut their teeth on Haskell.
+#+END_QUOTE
